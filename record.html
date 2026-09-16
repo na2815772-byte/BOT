@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Voice & Text Assistant</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color: white;
+}
+
+.header {
+    padding: 18px;
+    text-align: center;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+}
+
+.header h1 {
+    color: #38bdf8;
+}
+
+.container {
+    max-width: 750px;
+    margin: 35px auto;
+    padding: 20px;
+}
+
+.card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.section-title {
+    color: #38bdf8;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* RECORD */
+
+.record-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 13px 22px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.start {
+    background: #059669;
+}
+
+.stop {
+    background: #dc2626;
+}
+
+.submit {
+    background: #0284c7;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.status {
+    text-align: center;
+    margin: 20px 0;
+    color: #94a3b8;
+}
+
+.wave {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    height: 45px;
+    align-items: center;
+}
+
+.bar {
+    width: 7px;
+    height: 10px;
+    background: #38bdf8;
+    border-radius: 5px;
+}
+
+.recording .bar {
+    animation: wave .7s infinite alternate;
+}
+
+@keyframes wave {
+    from {
+        height: 8px;
+    }
+
+    to {
+        height: 40px;
+    }
+}
+
+/* TEXT */
+
+textarea {
+    width: 100%;
+    min-height: 130px;
+    resize: vertical;
+    background: #0f172a;
+    color: white;
+    border: 1px solid #475569;
+    border-radius: 10px;
+    padding: 15px;
+    outline: none;
+    font-size: 16px;
+}
+
+textarea:focus {
+    border-color: #38bdf8;
+}
+
+.text-submit {
+    width: 100%;
+    margin-top: 12px;
+}
+
+/* AI VOICE */
+
+.voice-box {
+    margin-top: 25px;
+    padding: 20px;
+    text-align: center;
+    background: #0f172a;
+    border-radius: 10px;
+    border: 1px solid #334155;
+}
+
+.voice-button {
+    background: #7c3aed;
+    margin-top: 10px;
+}
+
+.answer {
+    margin-top: 20px;
+    padding: 15px;
+    background: #0f172a;
+    border-left: 4px solid #38bdf8;
+    border-radius: 7px;
+}
+
+.answer h3 {
+    color: #38bdf8;
+    margin-bottom: 8px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.back {
+    display: block;
+    text-align: center;
+    margin-top: 25px;
+    color: #38bdf8;
+    text-decoration: none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="header">
+
+    <h1>
+        Voice & Text Assistant
+    </h1>
+
+</div>
+
+
+<div class="container">
+
+<div class="card">
+
+    <h2 class="section-title">
+        🎙️ Record
+    </h2>
+
+
+    <!-- WAVE -->
+
+    <div id="wave"
+         class="wave">
+
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div id="status"
+         class="status">
+
+        Record শুরু করার জন্য
+        Start Record চাপুন।
+
+    </div>
+
+
+    <!-- RECORD BUTTONS -->
+
+    <div class="record-buttons">
+
+        <button
+            id="startBtn"
+            class="start">
+
+            ▶ Start Record
+
+        </button>
+
+        <button
+            id="stopBtn"
+            class="stop"
+            disabled>
+
+            ⏹ Stop Record
+
+        </button>
+
+        <button
+            id="recordSubmitBtn"
+            class="submit">
+
+            Submit Record
+
+        </button>
+
+    </div>
+
+
+    <!-- TEXT -->
+
+    <div style="margin-top:35px;">
+
+        <h2 class="section-title">
+            📝 Text
+        </h2>
+
+        <textarea
+            id="textInput"
+            placeholder="আপনার প্রশ্ন এখানে লিখুন..."></textarea>
+
+        <button
+            id="textSubmitBtn"
+            class="submit text-submit">
+
+            Submit Text
+
+        </button>
+
+    </div>
+
+
+    <!-- AI VOICE -->
+
+    <div class="voice-box">
+
+        <h2>
+            🔊 AI Voice
+        </h2>
+
+        <p style="color:#94a3b8;margin-top:8px;">
+            উত্তর পাওয়া গেলে AI Voice সেটি শোনাবে।
+        </p>
+
+        <button
+            id="voiceBtn"
+            class="voice-button">
+
+            🔊 AI Voice
+
+        </button>
+
+    </div>
+
+
+    <!-- ANSWER -->
+
+    <div id="answerBox"
+         class="answer hidden">
+
+        <h3>
+            Answer
+        </h3>
+
+        <p id="answerText"></p>
+
+    </div>
+
+
+    <a href="index.html"
+       class="back">
+
+        ← Home Page
+
+    </a>
+
+</div>
+
+</div>
+
+
+<!-- index.js থেকে প্রশ্নের উত্তর নেওয়া হবে -->
+
+<script src="index.js"></script>
+
+
+<script>
+
+    /* =========================
+       LOGIN PROTECTION
+    ========================== */
+
+    if (
+        localStorage.getItem("isLoggedIn")
+        !== "true"
+    ) {
+
+        window.location.href =
+            "login.html";
+
+    }
+
+
+    /* =========================
+       ELEMENTS
+    ========================== */
+
+    const startBtn =
+        document.getElementById("startBtn");
+
+    const stopBtn =
+        document.getElementById("stopBtn");
+
+    const recordSubmitBtn =
+        document.getElementById("recordSubmitBtn");
+
+    const textInput =
+        document.getElementById("textInput");
+
+    const textSubmitBtn =
+        document.getElementById("textSubmitBtn");
+
+    const voiceBtn =
+        document.getElementById("voiceBtn");
+
+    const answerBox =
+        document.getElementById("answerBox");
+
+    const answerText =
+        document.getElementById("answerText");
+
+    const status =
+        document.getElementById("status");
+
+    const wave =
+        document.getElementById("wave");
+
+
+    /* =========================
+       VOICE RECOGNITION
+    ========================== */
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    let recognition = null;
+
+    let recordedText = "";
+
+    let lastAnswer = "";
+
+
+    if (SpeechRecognition) {
+
+        recognition =
+            new SpeechRecognition();
+
+        recognition.lang = "bn-BD";
+
+        recognition.continuous = true;
+
+        recognition.interimResults = false;
+
+
+        recognition.onresult =
+            function(event) {
+
+                let text = "";
+
+                for (
+                    let i = event.resultIndex;
+                    i < event.results.length;
+                    i++
+                ) {
+
+                    text +=
+                        event.results[i][0].transcript;
+
+                }
+
+                recordedText += " " + text;
+
+            };
+
+
+        recognition.onerror =
+            function() {
+
+                status.innerText =
+                    "Voice recognition-এ সমস্যা হয়েছে।";
+
+                wave.classList.remove("recording");
+
+            };
+
+    }
+
+
+    /* =========================
+       START RECORD
+    ========================== */
+
+    startBtn.addEventListener(
+        "click",
+        function() {
+
+            if (!recognition) {
+
+                alert(
+                    "আপনার browser Voice Recognition support করে না।"
+                );
+
+                return;
+            }
+
+
+            recordedText = "";
+
+            try {
+
+                recognition.start();
+
+            } catch(error) {
+
+                console.log(error);
+
+            }
+
+
+            wave.classList.add("recording");
+
+            startBtn.disabled = true;
+
+            stopBtn.disabled = false;
+
+            status.innerText =
+                "🎙️ শুনছি... এখন কথা বলুন।";
+
+        }
+    );
+
+
+    /* =========================
+       STOP RECORD
+    ========================== */
+
+    stopBtn.addEventListener(
+        "click",
+        function() {
+
+            if (recognition) {
+
+                recognition.stop();
+
+            }
+
+            wave.classList.remove("recording");
+
+            startBtn.disabled = false;
+
+            stopBtn.disabled = true;
+
+            status.innerText =
+                "Record বন্ধ হয়েছে। Submit Record চাপুন।";
+
+        }
+    );
+
+
+    /* =========================
+       QUESTION → ANSWER
+    ========================== */
+
+    function processQuestion(question) {
+
+        question =
+            question.trim().toLowerCase();
+
+
+        if (!question) {
+
+            alert("প্রশ্ন দিন।");
+
+            return;
+
+        }
+
+
+        /*
+         * index.js-এর function ব্যবহার করবে
+         */
+
+        let reply = null;
+
+
+        if (
+            typeof findAnswer === "function"
+        ) {
+
+            reply =
+                findAnswer(question);
+
+        }
+
+
+        if (!reply) {
+
+            reply =
+                "Sorry, I could not find an answer matching your question.";
+
+        }
+
+
+        lastAnswer = reply;
+
+
+        /*
+         * Answer user-এর সামনে
+         */
+
+        answerText.innerText =
+            reply;
+
+        answerBox.classList.remove(
+            "hidden"
+        );
+
+
+        /*
+         * AI Voice
+         */
+
+        speakAnswer(reply);
+
+    }
+
+
+    /* =========================
+       RECORD SUBMIT
+    ========================== */
+
+    recordSubmitBtn.addEventListener(
+        "click",
+        function() {
+
+            const question =
+                recordedText.trim();
+
+            processQuestion(question);
+
+            recordedText = "";
+
+        }
+    );
+
+
+    /* =========================
+       TEXT SUBMIT
+    ========================== */
+
+    textSubmitBtn.addEventListener(
+        "click",
+        function() {
+
+            const question =
+                textInput.value.trim();
+
+            processQuestion(question);
+
+        }
+    );
+
+
+    /* =========================
+       AI VOICE
+    ========================== */
+
+    function speakAnswer(text) {
+
+        if (
+            !window.speechSynthesis
+        ) {
+
+            alert(
+                "আপনার browser AI Voice support করে না।"
+            );
+
+            return;
+
+        }
+
+
+        window.speechSynthesis.cancel();
+
+
+        const voice =
+            new SpeechSynthesisUtterance(text);
+
+
+        voice.lang = "en-US";
+
+        voice.rate = 1.0;
+
+        voice.pitch = 1.0;
+
+
+        window.speechSynthesis.speak(
+            voice
+        );
+
+    }
+
+
+    /* =========================
+       AI VOICE BUTTON
+    ========================== */
+
+    voiceBtn.addEventListener(
+        "click",
+        function() {
+
+            if (lastAnswer) {
+
+                speakAnswer(lastAnswer);
+
+            } else {
+
+                alert(
+                    "আগে একটি প্রশ্ন Submit করুন।"
+                );
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
