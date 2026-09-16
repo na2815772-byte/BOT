@@ -230,7 +230,40 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+        }
+
+        /* অ্যানিমেটেড ভয়েস ভিজ্যুয়াল ইফেক্ট (Wave Effect) */
+        .visualizer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            height: 40px;
+            margin-bottom: 20px;
+        }
+
+        .wave-bar {
+            width: 6px;
+            height: 10px;
+            background-color: #38bdf8;
+            border-radius: 3px;
+            transition: height 0.2s ease;
+        }
+
+        .recording .wave-bar {
+            animation: pulse 1s infinite alternate ease-in-out;
+        }
+
+        .recording .wave-bar:nth-child(1) { animation-delay: 0.1s; }
+        .recording .wave-bar:nth-child(2) { animation-delay: 0.3s; }
+        .recording .wave-bar:nth-child(3) { animation-delay: 0.5s; }
+        .recording .wave-bar:nth-child(4) { animation-delay: 0.2s; }
+        .recording .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0% { height: 8px; opacity: 0.5; }
+            100% { height: 35px; opacity: 1; background-color: #22c55e; }
         }
 
         .input-container {
@@ -286,12 +319,12 @@
                 <button id="menuBtn" class="icon-btn" aria-label="Menu">&#8942;</button>
                 <div id="dropdownMenu" class="dropdown-content hidden">
                     <a href="#" id="helpCenterBtn">হেল্প সেন্টার</a>
-                    <button id="logoutBtn" class="dropdown-item-btn">লগআউট</button>
+                    <button id="logoutBtn" class="dropdown-item-btn hidden">লগআউট</button>
                 </div>
             </div>
             <span class="logo-text">মাই অ্যাপ</span>
         </div>
-        <div class="nav-right">
+        <div class="nav-right" id="navAuthLinks">
             <a href="login.html" class="nav-link">লগইন</a>
             <a href="registration.html" class="nav-link btn-primary-sm">রেজিস্ট্রেশন</a>
         </div>
@@ -311,6 +344,15 @@
         <section id="botSection" class="bot-card hidden">
             <h2>ভয়েস ও টেক্সট সহকারী</h2>
             
+            <!-- ভয়েস ভিজ্যুয়াল ইফেক্ট -->
+            <div id="visualizer" class="visualizer-container">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+
             <div class="record-controls">
                 <button id="startRecordBtn" class="btn-action">Start Record</button>
                 <button id="stopRecordBtn" class="btn-action btn-danger" disabled>Stop Record</button>
@@ -330,8 +372,134 @@
 
     </main>
 
-    <!-- জাভাস্ক্রিপ্ট ফাইল সংযোগ -->
-    <script src="script.js"></script>
-    <script src="index.js"></script>
+    <script>
+        // বিশ্বস্ত স্ট্যাটাস ম্যানেজমেন্ট
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        let recognition = null;
+        let recordedSpeechText = "";
+
+        const navAuthLinks = document.getElementById('navAuthLinks');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const menuBtn = document.getElementById('menuBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        
+        const heroSection = document.getElementById('heroSection');
+        const botSection = document.getElementById('botSection');
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        
+        const startRecordBtn = document.getElementById('startRecordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const userInputText = document.getElementById('userInputText');
+        const submitBtn = document.getElementById('submitBtn');
+        const visualizer = document.getElementById('visualizer');
+        const botResponseArea = document.getElementById('botResponseArea');
+        const responseText = document.getElementById('responseText');
+
+        // ১. নেভবার এবং লগইন স্টেট সেটআপ
+        if (isLoggedIn) {
+            navAuthLinks.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+        } else {
+            navAuthLinks.classList.remove('hidden');
+            logoutBtn.classList.add('hidden');
+        }
+
+        // ড্রপডাউন টগল
+        menuBtn.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // লগআউট ক্লিক
+        logoutBtn.addEventListener('click', () => {
+            localStorage.setItem('isLoggedIn', 'false');
+            window.location.href = 'login.html';
+        });
+
+        // ২. ভয়েস স্পিচ স্পিকার ফাংশন (1.5x Speed)
+        function speakVoice(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 1.5;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ৩. Get Started বাটন ক্লিক লজিক
+        getStartedBtn.addEventListener('click', () => {
+            if (!isLoggedIn) {
+                speakVoice("Please complete your registration first, then return to the home page.");
+                window.location.href = 'login.html';
+            } else {
+                heroSection.classList.add('hidden');
+                botSection.classList.remove('hidden');
+            }
+        });
+
+        // ৪. ব্যাকগ্রাউন্ড স্পিচ রিকগনিশন (অডিও থেকে লুকানো টেক্সট)
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'bn-BD';
+            recognition.continuous = true;
+
+            recognition.onresult = (event) => {
+                let currentText = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    currentText += event.results[i][0].transcript;
+                }
+                recordedSpeechText = currentText; // ব্যাকগ্রাউন্ডে সেভ হবে
+            };
+        }
+
+        // রেকর্ড স্টার্ট
+        startRecordBtn.addEventListener('click', () => {
+            if (!recognition) {
+                alert("আপনার ব্রাউজারে ভয়েস রেকর্ডিং সাপোর্ট করে না।");
+                return;
+            }
+            recordedSpeechText = "";
+            recognition.start();
+            visualizer.classList.add('recording');
+            startRecordBtn.disabled = true;
+            stopRecordBtn.disabled = false;
+        });
+
+        // রেকর্ড স্টপ
+        stopRecordBtn.addEventListener('click', () => {
+            if (recognition) {
+                recognition.stop();
+            }
+            visualizer.classList.remove('recording');
+            startRecordBtn.disabled = false;
+            stopRecordBtn.disabled = true;
+        });
+
+        // ৫. সাবমিট লজিক (ভয়েস ও টেক্সট কম্বাইন্ড)
+        submitBtn.addEventListener('click', () => {
+            // যদি ভয়েস রেকর্ড করা থাকে তাহলে সেটি ব্যবহার করবে, নয়তো ম্যানুয়াল টেক্সট
+            let query = recordedSpeechText.trim() || userInputText.value.trim();
+            query = query.toLowerCase();
+
+            if (!query) return;
+
+            let reply = "Sorry, I could not find an answer matching your query.";
+
+            // সাধারণ প্রশ্নোত্তর লজিক
+            if (query.includes("তুমি কে") || query.includes("who are you") || query.includes("তোমার নাম")) {
+                reply = "I am the artificial intelligent created and presented by niloy";
+            } else if (query.includes("হ্যালো") || query.includes("hello")) {
+                reply = "Hello! How can I help you today?";
+            }
+
+            // আউটপুট দেখান ও ভয়েসে বলুন
+            responseText.innerText = reply;
+            botResponseArea.classList.remove('hidden');
+            speakVoice(reply);
+
+            // রিসেট
+            recordedSpeechText = "";
+        });
+    </script>
 </body>
 </html>
