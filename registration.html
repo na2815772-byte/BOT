@@ -1,260 +1,245 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Create Your Account</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
 
-        body {
-            background: radial-gradient(circle at top left, #1e1b4b, #0f172a, #020617);
-            color: #f8fafc;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-        /* Background Glow Effect */
-        .bg-glow {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.3;
-            z-index: 0;
-            animation: pulse 8s infinite alternate;
-        }
+<title>রেজিস্ট্রেশন</title>
 
-        .glow-1 { top: 10%; left: 15%; }
-        .glow-2 { bottom: 10%; right: 15%; background: linear-gradient(135deg, #c084fc, #38bdf8); }
+<style>
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.2; }
-            100% { transform: scale(1.2); opacity: 0.4; }
-        }
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
 
-        /* Glassmorphism Card */
-        .register-card {
-            position: relative;
-            z-index: 10;
-            background: rgba(30, 41, 59, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 35px 28px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color: white;
+}
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+.card {
+    width: 92%;
+    max-width: 450px;
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #334155;
+}
 
-        .card-header {
-            text-align: center;
-            margin-bottom: 22px;
-        }
+h1 {
+    text-align: center;
+    color: #38bdf8;
+    margin-bottom: 25px;
+}
 
-        .card-header h2 {
-            font-size: 1.7rem;
-            color: #f8fafc;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
+input {
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 13px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: white;
+}
 
-        .card-header p {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-top: 4px;
-        }
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #0284c7;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        /* All form fields will be vertically stacked (উপরে নিচে) */
-        .form-group {
-            margin-bottom: 16px;
-            width: 100%;
-        }
+.message {
+    text-align: center;
+    margin-top: 15px;
+}
 
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
+.login {
+    text-align: center;
+    margin-top: 20px;
+}
 
-        .form-control {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 11px 14px;
-            color: #f8fafc;
-            font-size: 0.9rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
+a {
+    color: #38bdf8;
+}
 
-        .form-control:focus {
-            border-color: #38bdf8;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-            background: rgba(15, 23, 42, 0.85);
-        }
+</style>
 
-        .form-control::placeholder {
-            color: #64748b;
-        }
-
-        /* Compact Red Box Password Rule */
-        .password-rules {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            margin-bottom: 14px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        /* Submit Button */
-        .btn-submit {
-            width: 100%;
-            background: linear-gradient(135deg, #0284c7, #3b82f6);
-            color: #ffffff;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 6px;
-            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
-            transition: all 0.3s ease;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
-            background: linear-gradient(135deg, #0369a1, #2563eb);
-        }
-
-        /* Footer Link */
-        .card-footer {
-            text-align: center;
-            margin-top: 18px;
-            font-size: 0.85rem;
-            color: #94a3b8;
-        }
-
-        .card-footer a {
-            color: #38bdf8;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        .card-footer a:hover {
-            color: #7dd3fc;
-            text-decoration: underline;
-        }
-
-        /* Error Message Box */
-        .msg-box {
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            margin-bottom: 14px;
-            display: none;
-            background: rgba(220, 38, 38, 0.2);
-            border: 1px solid rgba(220, 38, 38, 0.4);
-            color: #fca5a5;
-            text-align: center;
-        }
-    </style>
 </head>
+
 <body>
 
-    <!-- Background Glow Effect -->
-    <div class="bg-glow glow-1"></div>
-    <div class="bg-glow glow-2"></div>
+<div class="card">
 
-    <!-- Registration Card -->
-    <div class="register-card">
-        <div class="card-header">
-            <h2>Create an Account</h2>
-            <p>Please fill in your details below</p>
-        </div>
+    <h1>রেজিস্ট্রেশন</h1>
 
-        <div id="regMsgBox" class="msg-box"></div>
+    <form id="registrationForm">
 
-        <form id="registrationForm">
-            <!-- First Name -->
-            <div class="form-group">
-                <label for="firstName">First Name</label>
-                <input type="text" id="firstName" class="form-control" placeholder="John" required>
-            </div>
+        <input
+            type="text"
+            id="firstName"
+            placeholder="First Name"
+            required>
 
-            <!-- Last Name -->
-            <div class="form-group">
-                <label for="lastName">Last Name</label>
-                <input type="text" id="lastName" class="form-control" placeholder="Doe" required>
-            </div>
+        <input
+            type="text"
+            id="lastName"
+            placeholder="Last Name"
+            required>
 
-            <!-- Email Address -->
-            <div class="form-group">
-                <label for="regEmail">Email Address</label>
-                <input type="email" id="regEmail" class="form-control" placeholder="john.doe@example.com" required>
-            </div>
+        <input
+            type="email"
+            id="email"
+            placeholder="Gmail / Email"
+            required>
 
-            <!-- Password Rule -->
-            <div class="password-rules">
-                [ Min 8 chars: A-Z, a-z, 0-9 & symbols ]
-            </div>
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required>
 
-            <!-- Password -->
-            <div class="form-group">
-                <label for="regPassword">Password</label>
-                <input type="password" id="regPassword" class="form-control" placeholder="Enter password" required>
-            </div>
+        <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm Password"
+            required>
 
-            <!-- Confirm Password -->
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm password" required>
-            </div>
+        <button type="submit">
+            SIGN UP
+        </button>
 
-            <button type="submit" class="btn-submit">Register Now</button>
-        </form>
+    </form>
 
-        <div class="card-footer">
-            Already have an account? <a href="login.html">Login Here</a>
-        </div>
+    <div id="message" class="message"></div>
+
+    <div class="login">
+
+        আগে থেকেই অ্যাকাউন্ট আছে?
+
+        <a href="login.html">
+            লগইন
+        </a>
+
     </div>
 
-    <!-- External JavaScript Link -->
-    <script src="script.js"></script>
+</div>
+
+
+<script>
+
+document
+.getElementById("registrationForm")
+.addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+
+    const firstName =
+        document.getElementById("firstName").value.trim();
+
+    const lastName =
+        document.getElementById("lastName").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    const confirmPassword =
+        document.getElementById("confirmPassword").value;
+
+
+    const message =
+        document.getElementById("message");
+
+
+    /*
+     * PASSWORD RULES
+     */
+
+    const passwordOK =
+        password.length >= 8 &&
+        /[A-Z]/.test(password) &&
+        /[a-z]/.test(password) &&
+        /[0-9]/.test(password) &&
+        /[^A-Za-z0-9]/.test(password);
+
+
+    if (!passwordOK) {
+
+        message.innerText =
+            "Password-এ 8+ character, uppercase, lowercase, number এবং special character থাকতে হবে।";
+
+        return;
+    }
+
+
+    if (password !== confirmPassword) {
+
+        message.innerText =
+            "Password মিলছে না।";
+
+        return;
+    }
+
+
+    /*
+     * USER SAVE
+     */
+
+    const user = {
+
+        firstName: firstName,
+
+        lastName: lastName,
+
+        email: email,
+
+        password: password
+
+    };
+
+
+    localStorage.setItem(
+        "registeredUser",
+        JSON.stringify(user)
+    );
+
+
+    /*
+     * LOGIN STATUS
+     */
+
+    localStorage.setItem(
+        "isLoggedIn",
+        "true"
+    );
+
+
+    /*
+     * HOME PAGE
+     */
+
+    window.location.href =
+        "index.html";
+
+});
+
+</script>
+
 </body>
 </html>
