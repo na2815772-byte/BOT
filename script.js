@@ -1,14 +1,13 @@
 // ==========================================
-// Helper Function: Text to Speech (Voice)
+// Helper Function: Text to Speech (Voice) - 1.5x Speed
 // ==========================================
 function speakMessage(text) {
     if ('speechSynthesis' in window) {
-        // আগের কোনো ভয়েস চলতে থাকলে তা বন্ধ করা
-        window.speechSynthesis.cancel();
+        window.speechSynthesis.cancel(); // পূর্বের ভয়েস থামানো
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
-        utterance.rate = 0.9; // স্মুথ ও স্পষ্ট ভয়েস স্পিড
+        utterance.rate = 1.5; // নির্দেশনামতো ১.৫x স্পিড
         window.speechSynthesis.speak(utterance);
     }
 }
@@ -36,7 +35,6 @@ function showMessage(elementId, text, isSuccess = false) {
 
 // ==========================================
 // Helper Function: Strong Password Regex
-// (Min 8 chars, 1 Uppercase, 1 Lowercase, 1 Number, 1 Special Char)
 // ==========================================
 function isStrongPassword(password) {
     const minLength = password.length >= 8;
@@ -57,14 +55,12 @@ if (regForm) {
     regForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        // ফর্ম ইনপুট ভ্যালু নেওয়া
         const firstName = document.getElementById('firstName').value.trim();
         const lastName = document.getElementById('lastName').value.trim();
         const email = document.getElementById('regEmail').value.trim().toLowerCase();
         const password = document.getElementById('regPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        // ১. পাসওয়ার্ড স্ট্রং কিনা যাচাই
         if (!isStrongPassword(password)) {
             const errorMsg = "Password must be at least 8 characters with uppercase, lowercase, number, and symbol.";
             showMessage('regMsgBox', errorMsg);
@@ -72,7 +68,6 @@ if (regForm) {
             return;
         }
 
-        // ২. পাসওয়ার্ড ও কনফার্ম পাসওয়ার্ড ম্যাচ যাচাই
         if (password !== confirmPassword) {
             const errorMsg = "Sorry, passwords do not match!";
             showMessage('regMsgBox', errorMsg);
@@ -80,20 +75,17 @@ if (regForm) {
             return;
         }
 
-        // ৩. পূর্বে রেজিস্টার্ড ইউজার লিস্ট আনা (localStorage থেকে)
         let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-        // ৪. ডুপ্লিকেট ইমেইল চেক
         const isEmailExists = users.some(user => user.email === email);
 
         if (isEmailExists) {
-            const errorMsg = "Sorry, this email is already registered!";
+            const errorMsg = "Sorry, don't know match allowed.";
             showMessage('regMsgBox', errorMsg);
             speakMessage(errorMsg);
             return;
         }
 
-        // ৫. নতুন ইউজার অবজেক্ট তৈরি ও সেভ করা
         const newUser = {
             firstName: firstName,
             lastName: lastName,
@@ -104,10 +96,9 @@ if (regForm) {
         users.push(newUser);
         localStorage.setItem('registeredUsers', JSON.stringify(users));
 
-        // সফল মেসেজ ও রিডাইরেক্ট
         const successMsg = "Registration successful! Redirecting to login page...";
         showMessage('regMsgBox', successMsg, true);
-        speakMessage("Registration successful! Redirecting to login page.");
+        speakMessage("Please complete your registration first, then return to the home page.");
 
         setTimeout(function () {
             window.location.href = 'login.html';
@@ -127,19 +118,16 @@ if (loginForm) {
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
         const password = document.getElementById('loginPassword').value;
 
-        // localStorage থেকে সব রেজিস্টার্ড ইউজার আনা
         let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-        // ইউজার ম্যাচ চেক
         const validUser = users.find(user => user.email === email && user.password === password);
 
         if (validUser) {
-            // সফলভাবে লগইন হলে সক্রিয় ইউজার হিসেবে সেভ
             localStorage.setItem('currentUser', JSON.stringify(validUser));
 
             const successMsg = "Login successful! Welcome back.";
             showMessage('loginMsgBox', successMsg, true);
-            speakMessage(`Welcome back, ${validUser.firstName}!`);
+            speakMessage("Welcome back to the page");
 
             setTimeout(function () {
                 window.location.href = 'index.html';
@@ -150,4 +138,127 @@ if (loginForm) {
             speakMessage("Sorry, invalid email or password. Please try again.");
         }
     });
-          }
+}
+
+// ==========================================
+// HOME PAGE (INDEX.HTML) MAIN LOGIC
+// ==========================================
+document.addEventListener('DOMContentLoaded', function () {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    const navAuthLinks = document.getElementById('navAuthLinks');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    const heroSection = document.getElementById('heroSection');
+    const botSection = document.getElementById('botSection');
+
+    // ১. নেভবার এবং লগইন স্টেট আপডেট
+    if (currentUser) {
+        if (navAuthLinks) navAuthLinks.classList.add('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
+    } else {
+        if (navAuthLinks) navAuthLinks.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden');
+    }
+
+    // ২. লগআউট হ্যান্ডলার
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        });
+    }
+
+    // ৩. Get Started বাটন ক্লিক লজিক
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', function () {
+            if (!currentUser) {
+                // ইউজার লগইন না থাকলে ভয়েস দিবে
+                speakMessage("Please complete your registration first, then return to the home page.");
+            } else {
+                // ইউজার লগইন করা থাকলে অন্য সেকশনে (বট পেজে) নিয়ে যাবে
+                if (heroSection) heroSection.classList.add('hidden');
+                if (botSection) botSection.classList.remove('hidden');
+                speakMessage("Welcome back to the page");
+            }
+        });
+    }
+
+    // ৪. ব্যাকগ্রাউন্ড স্পিচ রিকগনিশন (অদৃশ্য টেক্সট প্রসেসিং)
+    const startRecordBtn = document.getElementById('startRecordBtn');
+    const stopRecordBtn = document.getElementById('stopRecordBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const userInputText = document.getElementById('userInputText');
+    const botResponseArea = document.getElementById('botResponseArea');
+    const responseText = document.getElementById('responseText');
+    const visualizer = document.getElementById('visualizer');
+
+    let recognition = null;
+    let recordedText = "";
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'bn-BD';
+        recognition.continuous = true;
+
+        recognition.onresult = function (event) {
+            let result = "";
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                result += event.results[i][0].transcript;
+            }
+            recordedText = result; // ব্যাকগ্রাউন্ডে সেভ হবে
+        };
+    }
+
+    if (startRecordBtn) {
+        startRecordBtn.addEventListener('click', function () {
+            if (!recognition) return alert("Speech recognition not supported in this browser.");
+            
+            recordedText = "";
+            recognition.start();
+            if (visualizer) visualizer.classList.add('recording');
+            startRecordBtn.disabled = true;
+            if (stopRecordBtn) stopRecordBtn.disabled = false;
+        });
+    }
+
+    if (stopRecordBtn) {
+        stopRecordBtn.addEventListener('click', function () {
+            if (recognition) recognition.stop();
+            if (visualizer) visualizer.classList.remove('recording');
+            startRecordBtn.disabled = false;
+            stopRecordBtn.disabled = true;
+        });
+    }
+
+    // ৫. সাবমিট বাটন লজিক (index.js ব্যাকএন্ড রাউটের সাথে ম্যাচ করবে)
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function () {
+            const query = recordedText.trim() || (userInputText ? userInputText.value.trim() : "");
+            
+            if (!query) return;
+
+            fetch('/api/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const answer = data.answer || "Sorry, I could not find a matching answer.";
+                if (responseText) responseText.innerText = answer;
+                if (botResponseArea) botResponseArea.classList.remove('hidden');
+                speakMessage(answer);
+                recordedText = ""; // রিসেট
+            })
+            .catch(err => {
+                const fallbackMsg = "Sorry, I could not find a matching answer in my database.";
+                if (responseText) responseText.innerText = fallbackMsg;
+                if (botResponseArea) botResponseArea.classList.remove('hidden');
+                speakMessage(fallbackMsg);
+            });
+        });
+    }
+});
